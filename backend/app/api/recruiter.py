@@ -247,18 +247,3 @@ async def get_analytics(
         "bias_alerts": bias_alerts,
         "top_skills": ["Python", "JavaScript", "React", "AWS", "Docker"]  # Can be calculated from data
     }
-            raise HTTPException(status_code=400, detail="Could not process any resumes")
-        
-        # Sort by match score
-        results.sort(key=lambda x: x["match_score"], reverse=True)
-        
-        return {
-            "total_candidates": len(results),
-            "candidates": results,
-            "top_candidate": results[0] if results else None
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error in bulk_analyze_resumes: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
