@@ -1,9 +1,18 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
-from app.api import recruiter, candidate
+from app.api import recruiter, candidate, auth
+from app.database import Base, engine
+from app.models import User, Job, Resume, JobMatch, HiringDecision
 
-app = FastAPI()
+# Create tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="AI Hiring SaaS",
+    description="AI-powered recruitment platform with bias detection",
+    version="1.0.0"
+)
 
 # Enable CORS
 app.add_middleware(
@@ -14,12 +23,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
+app.include_router(auth.router)
 app.include_router(recruiter.router)
 app.include_router(candidate.router)
 
 @app.get("/")
 def root():
-    return {"status": "AI Hiring SaaS running"}
+    return {"status": "AI Hiring SaaS running", "version": "1.0.0"}
 
 @app.get("/health")
 def health():

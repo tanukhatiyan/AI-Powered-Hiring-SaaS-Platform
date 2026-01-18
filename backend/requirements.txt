@@ -4,3 +4,10 @@ python-multipart
 sentence-transformers
 scikit-learn
 pdfplumber
+sqlalchemy
+psycopg2-binary
+python-jose
+passlib
+bcrypt
+python-email-validator
+pydantic-settings
