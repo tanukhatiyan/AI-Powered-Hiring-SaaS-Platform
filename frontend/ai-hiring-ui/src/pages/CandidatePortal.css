@@ -14,6 +14,30 @@
   margin-bottom: 2rem;
 }
 
+.guest-notice {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  color: #856404;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.guest-disabled-notice {
+  background-color: #f8d7da;
+  border: 2px solid #f5c6cb;
+  color: #721c24;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.guest-disabled-notice p {
+  margin: 0.5rem 0;
+}
+
 .portal-container {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './RecruiterDashboard.css'
 
-export default function RecruiterDashboard() {
+export default function RecruiterDashboard({ isGuest }) {
   const [activeTab, setActiveTab] = useState('jobs')
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [selectedJobId, setSelectedJobId] = useState(null)
@@ -98,6 +98,30 @@ export default function RecruiterDashboard() {
       alert('Job created successfully!')
     } catch (error) {
       console.error('Error creating job:', error)
+      alert(`Error: ${error.message}`)
+    }
+  }
+
+  // Delete job
+  const handleDeleteJob = async (jobId) => {
+    if (!window.confirm('Are you sure you want to delete this job?')) return
+    
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/recruiter/jobs/${jobId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to delete job')
+      
+      setJobs(jobs.filter(job => job.id !== jobId))
+      if (selectedJobId === jobId) setSelectedJobId(null)
+      alert('Job deleted successfully!')
+    } catch (error) {
+      console.error('Error deleting job:', error)
       alert(`Error: ${error.message}`)
     }
   }
@@ -202,22 +226,29 @@ export default function RecruiterDashboard() {
         <p>Manage jobs, upload resumes, and track candidates</p>
       </div>
 
-      {!token && (
+      {isGuest && (
+        <div className="alert alert-info">
+          👤 <strong>You're browsing as a guest.</strong> Please <strong>Login or Register</strong> in the navbar to post jobs and manage candidates!
+        </div>
+      )}
+
+      {!token && !isGuest && (
         <div className="alert alert-warning">
           Please login first to access the recruiter dashboard
         </div>
       )}
 
-      <div className="dashboard-tabs">
-        <button
-          className={`tab-button ${activeTab === 'jobs' ? 'active' : ''}`}
-          onClick={() => handleTabChange('jobs')}
-        >
-          📋 Jobs
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'upload' ? 'active' : ''}`}
-          onClick={() => handleTabChange('upload')}
+      {!isGuest && (
+        <div className="dashboard-tabs">
+          <button
+            className={`tab-button ${activeTab === 'jobs' ? 'active' : ''}`}
+            onClick={() => handleTabChange('jobs')}
+          >
+            📋 Jobs
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'upload' ? 'active' : ''}`}
+            onClick={() => handleTabChange('upload')}
         >
           📤 Upload Resumes
         </button>
@@ -233,10 +264,35 @@ export default function RecruiterDashboard() {
         >
           📊 Analytics
         </button>
-      </div>
+        </div>
+      )}
+
+      {isGuest && (
+        <div className="guest-demo-section">
+          <h2>Demo: Available Features for Recruiters</h2>
+          <div className="feature-grid">
+            <div className="feature-box">
+              <h3>📋 Job Management</h3>
+              <p>Create and post job openings with detailed requirements</p>
+            </div>
+            <div className="feature-box">
+              <h3>📤 Resume Upload</h3>
+              <p>Bulk upload and parse candidate resumes automatically</p>
+            </div>
+            <div className="feature-box">
+              <h3>👥 Candidate Tracking</h3>
+              <p>Track and manage candidates through the hiring pipeline</p>
+            </div>
+            <div className="feature-box">
+              <h3>📊 Analytics</h3>
+              <p>View hiring metrics and candidate matching insights</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Jobs Tab */}
-      {activeTab === 'jobs' && (
+      {!isGuest && activeTab === 'jobs' && (
         <div className="tab-content">
           <div className="section">
             <h2>Create New Job</h2>
@@ -296,15 +352,23 @@ export default function RecruiterDashboard() {
                     <p>{job.description?.substring(0, 100)}...</p>
                     <p><strong>Location:</strong> {job.location || 'Not specified'}</p>
                     <p><strong>Level:</strong> {job.experience_level || 'Not specified'}</p>
-                    <button 
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        setSelectedJobId(job.id)
-                        setActiveTab('upload')
-                      }}
-                    >
-                      Upload Resumes
-                    </button>
+                    <div className="job-actions">
+                      <button 
+                        className="btn btn-secondary"
+                        onClick={() => {
+                          setSelectedJobId(job.id)
+                          setActiveTab('upload')
+                        }}
+                      >
+                        Upload Resumes
+                      </button>
+                      <button 
+                        className="btn btn-danger"
+                        onClick={() => handleDeleteJob(job.id)}
+                      >
+                        Delete Job
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -314,17 +378,45 @@ export default function RecruiterDashboard() {
       )}
 
       {/* Upload Resumes Tab */}
-      {activeTab === 'upload' && (
+      {!isGuest && activeTab === 'upload' && (
         <div className="tab-content">
           <div className="section">
             <h2>Upload Resumes for Job</h2>
-            {!selectedJobId ? (
-              <div className="alert alert-info">
-                Please select a job first from the Jobs tab
+            <div className="job-selector-section">
+              <label htmlFor="job-select"><strong>Select a Job:</strong></label>
+              <select 
+                id="job-select"
+                value={selectedJobId || ''} 
+                onChange={(e) => setSelectedJobId(e.target.value)}
+                className="job-select"
+              >
+                <option value="">-- Choose a job --</option>
+                {jobs.map(job => (
+                  <option key={job.id} value={job.id}>
+                    {job.title} - {job.location}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {jobs.length === 0 && (
+              <div className="alert alert-warning">
+                No jobs created yet. Please create a job first in the Jobs tab.
               </div>
-            ) : (
+            )}
+
+            {!selectedJobId && jobs.length > 0 && (
+              <div className="alert alert-info">
+                Please select a job from the dropdown above
+              </div>
+            )}
+
+            {selectedJobId && (
               <>
-                <p><strong>Selected Job ID:</strong> {selectedJobId}</p>
+                <div className="selected-job-info">
+                  <p><strong>Selected Job ID:</strong> {selectedJobId}</p>
+                  <p><strong>Job:</strong> {jobs.find(j => j.id === selectedJobId)?.title}</p>
+                </div>
                 <form onSubmit={handleBulkUpload} className="upload-form">
                   <div className="file-input-group">
                     <label>Select Resumes (PDF or TXT)</label>
@@ -366,7 +458,7 @@ export default function RecruiterDashboard() {
       )}
 
       {/* Candidates Tab */}
-      {activeTab === 'candidates' && (
+      {!isGuest && activeTab === 'candidates' && (
         <div className="tab-content">
           <div className="section">
             <h2>Candidates</h2>
@@ -390,7 +482,7 @@ export default function RecruiterDashboard() {
       )}
 
       {/* Analytics Tab */}
-      {activeTab === 'analytics' && (
+      {!isGuest && activeTab === 'analytics' && (
         <div className="tab-content">
           <div className="section">
             <h2>Hiring Analytics</h2>
@@ -454,5 +546,3 @@ export default function RecruiterDashboard() {
     </div>
   )
 }
-
-    e.preventDefault()

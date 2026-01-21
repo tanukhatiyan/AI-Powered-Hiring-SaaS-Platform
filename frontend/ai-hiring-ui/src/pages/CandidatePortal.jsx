@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './CandidatePortal.css'
 
-export default function CandidatePortal() {
+export default function CandidatePortal({ isGuest }) {
   const [file, setFile] = useState(null)
   const [selectedJob, setSelectedJob] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -157,6 +157,12 @@ export default function CandidatePortal() {
       <h1>Candidate Portal</h1>
       <p className="subtitle">Find your perfect job match</p>
 
+      {isGuest && (
+        <div className="guest-notice">
+          <p>👤 <strong>You're browsing as a guest.</strong> Please <strong>Login or Register</strong> in the navbar to upload your resume and apply for jobs!</p>
+        </div>
+      )}
+
       <div className="portal-container">
         {/* Job Listings Section */}
         <div className="jobs-section">
@@ -200,18 +206,24 @@ export default function CandidatePortal() {
             </div>
           )}
           
-          <form onSubmit={handleSubmit}>
-            <div className="file-input-wrapper">
-              <label htmlFor="file-input" className="file-label">
-                <div className="file-icon">📄</div>
-                <p>Click to select or drag your resume (PDF or DOC)</p>
-                <input
-                  id="file-input"
-                  type="file"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  title="Select your resume file (PDF, DOC, or DOCX format)"
-                  disabled={isAnalyzing}
+          {isGuest ? (
+            <div className="guest-disabled-notice">
+              <p>Resume upload is available for registered users only.</p>
+              <p>Please login or register to upload your resume and match with jobs.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="file-input-wrapper">
+                <label htmlFor="file-input" className="file-label">
+                  <div className="file-icon">📄</div>
+                  <p>Click to select or drag your resume (PDF or DOC)</p>
+                  <input
+                    id="file-input"
+                    type="file"
+                    onChange={handleFileChange}
+                    accept=".pdf,.doc,.docx"
+                    title="Select your resume file (PDF, DOC, or DOCX format)"
+                    disabled={isAnalyzing}
                 />
               </label>
               {file && <p className="file-name">✓ Selected: {file.name}</p>}
@@ -224,7 +236,8 @@ export default function CandidatePortal() {
             >
               {isAnalyzing ? `Analyzing... ${Math.round(analysisProgress)}%` : 'Match Resume'}
             </button>
-          </form>
+            </form>
+          )}
 
           {isAnalyzing && (
             <div className="progress-section">

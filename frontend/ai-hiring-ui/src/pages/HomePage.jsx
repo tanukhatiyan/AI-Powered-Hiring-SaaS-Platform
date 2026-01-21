@@ -1,6 +1,6 @@
 import './HomePage.css'
 
-export default function HomePage({ onNavigate }) {
+export default function HomePage({ onNavigate, onBrowseAsGuest }) {
   return (
     <div className="home-page">
       <section className="hero">
@@ -8,10 +8,10 @@ export default function HomePage({ onNavigate }) {
           <h1>Welcome to AI Hiring SaaS</h1>
           <p>Revolutionizing recruitment with AI-powered candidate matching and bias detection</p>
           <div className="hero-buttons">
-            <button className="btn btn-primary" onClick={() => onNavigate('candidate', 'candidate')}>
+            <button className="btn btn-primary" onClick={() => onBrowseAsGuest('candidate')}>
               I'm a Candidate
             </button>
-            <button className="btn btn-secondary" onClick={() => onNavigate('recruiter', 'recruiter')}>
+            <button className="btn btn-secondary" onClick={() => onBrowseAsGuest('recruiter')}>
               I'm a Recruiter
             </button>
           </div>

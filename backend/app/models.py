@@ -20,7 +20,7 @@ class User(Base):
     # Relationships
     resumes = relationship("Resume", back_populates="candidate")
     jobs = relationship("Job", back_populates="recruiter")
-    decisions = relationship("HiringDecision", back_populates="recruiter")
+    decisions_created = relationship("HiringDecision", back_populates="recruiter", foreign_keys="HiringDecision.created_by")
 
 class Resume(Base):
     __tablename__ = "resumes"
@@ -94,4 +94,4 @@ class HiringDecision(Base):
     
     # Relationships
     job = relationship("Job", back_populates="decisions")
-    recruiter = relationship("User", back_populates="decisions")
+    recruiter = relationship("User", back_populates="decisions_created", foreign_keys=[created_by])

@@ -6,7 +6,10 @@ from app.database import Base, engine
 from app.models import User, Job, Resume, JobMatch, HiringDecision
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Error creating tables: {e}")
 
 app = FastAPI(
     title="AI Hiring SaaS",
@@ -14,7 +17,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS
+# Enable CORS - MUST be first middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
