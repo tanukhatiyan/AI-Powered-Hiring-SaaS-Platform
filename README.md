@@ -852,11 +852,11 @@ MIT License - feel free to use for personal and commercial projects.
 For issues, questions, or suggestions:
 1. Check existing GitHub issues
 2. Create a new issue with detailed description
-3. Contact: support@aihiring.com
+3. Contact: tanukhatiyan196@gmail.com
 
 ## Authors
 
-- **Your Name** - Initial development
+- **Tanu khatiyan** - Initial development
 
 ---
 
